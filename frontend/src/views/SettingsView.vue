@@ -247,8 +247,8 @@ async function onProvider(isRestore = false) {
   // switching away and back keeps the user's base URL / API key.
   const saved = savedProviders.value[provider.value]
   if (saved) {
-    if (saved.BaseURL) baseUrl.value = saved.BaseURL
-    if (saved.APIKey) apiKey.value = saved.APIKey
+    if (saved.baseUrl) baseUrl.value = saved.baseUrl
+    if (saved.apiKey) apiKey.value = saved.apiKey
   }
   // Only clear discovered models/selection when the user actively switches
   // providers — not while restoring saved state on mount.
@@ -379,8 +379,8 @@ async function persist() {
     // Keep the local cache in sync so an immediate provider switch restores
     // the just-saved values without waiting for a backend round-trip.
     savedProviders.value[provider.value] = {
-      BaseURL: baseUrl.value,
-      APIKey: apiKey.value,
+      baseUrl: baseUrl.value,
+      apiKey: apiKey.value,
     }
   } catch (e) {
     console.error('[settings] SaveSettings failed:', e)
@@ -392,16 +392,16 @@ async function restoreSettings() {
   try {
     const cfg = await call('GetConfig')
     if (!cfg) return
-    if (cfg.Providers) savedProviders.value = cfg.Providers
-    if (cfg.Provider) provider.value = cfg.Provider
-    const pc = cfg.Providers && cfg.Providers[cfg.Provider]
+    if (cfg.providers) savedProviders.value = cfg.providers
+    if (cfg.provider) provider.value = cfg.provider
+    const pc = cfg.providers && cfg.providers[cfg.provider]
     if (pc) {
-      if (pc.BaseURL) baseUrl.value = pc.BaseURL
-      if (pc.APIKey) apiKey.value = pc.APIKey
+      if (pc.baseUrl) baseUrl.value = pc.baseUrl
+      if (pc.apiKey) apiKey.value = pc.apiKey
     }
-    if (cfg.FetchedModels && cfg.FetchedModels.length) fetchedModels.value = cfg.FetchedModels
-    if (cfg.SelectedModel) selectedModel.value = cfg.SelectedModel
-    if (cfg.FolderPath) folderPath.value = cfg.FolderPath
+    if (cfg.fetchedModels && cfg.fetchedModels.length) fetchedModels.value = cfg.fetchedModels
+    if (cfg.selectedModel) selectedModel.value = cfg.selectedModel
+    if (cfg.folderPath) folderPath.value = cfg.folderPath
   } catch (e) {
     console.error('[settings] GetConfig failed:', e)
   }
