@@ -1,0 +1,34 @@
+build/
+dist/
+*.db
+*.db-wal
+*.db-shm
+node_modules/
+frontend/dist/
+frontend/package.json.md5
+
+# Local secrets (never commit)
+.env
+.env.local
+
+# Test data & utility scripts
+data/
+extract_meta.py
+or_models.json
+
+# OS / editor junk
+nul
+*.exe
+*.dll
+*.so
+*.dylib
+Thumbs.db
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Wails build output
+build/bin/
