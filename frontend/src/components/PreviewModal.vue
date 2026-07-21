@@ -2,21 +2,23 @@
   <el-dialog
     :model-value="modelValue"
     @update:model-value="$emit('update:modelValue', $event)"
-    width="80%"
-    top="5vh"
+    :style="{ '--el-dialog-width': calculatedWidth, '--el-dialog-margin-top': '5vh' }"
     class="preview-dialog"
     :show-close="true"
   >
     <div class="preview-wrap" v-if="current">
-      <el-image :src="fullUri" fit="contain" class="preview-img" v-loading="loadingImg">
-        <template #error><div class="img-error">failed to load</div></template>
-      </el-image>
+      <Transition name="fade" mode="out-in">
+        <el-image :key="fullUri" :src="fullUri" fit="contain" class="preview-img" v-loading="loadingImg">
+          <template #error><div class="img-error">failed to load</div></template>
+        </el-image>
+      </Transition>
       <div class="preview-meta">
         <div class="path">{{ current.path }}</div>
-        <div class="score">score {{ current.score.toFixed(4) }} • {{ index + 1 }} / {{ hits.length }}</div>
+        <div class="score">{{ index + 1 }} / {{ hits.length }}</div>
       </div>
       <div class="nav">
         <button class="nav-btn" @click="step(-1)" aria-label="Previous"><IconArrowLeft /></button>
+        <button class="nav-btn" @click="reveal(current.path)" aria-label="Reveal in folder" title="Reveal in folder"><FolderOpen /></button>
         <button class="nav-btn" @click="step(1)" aria-label="Next"><IconArrowRight /></button>
       </div>
     </div>
@@ -25,7 +27,7 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue'
-import { ArrowLeft as IconArrowLeft, ArrowRight as IconArrowRight } from '@lucide/vue'
+import { ArrowLeft as IconArrowLeft, ArrowRight as IconArrowRight, FolderOpen } from '@lucide/vue'
 import { call } from '../api.js'
 
 const props = defineProps({
@@ -37,6 +39,7 @@ const emit = defineEmits(['update:modelValue', 'update:index'])
 
 const fullUri = ref('')
 const loadingImg = ref(false)
+const calculatedWidth = ref('80%')
 
 const current = computed(() => props.hits[props.index] || null)
 
@@ -47,15 +50,38 @@ watch(
     loadingImg.value = true
     fullUri.value = ''
     try {
-      fullUri.value = await call('ImageDataURI', current.value.path)
+      const uri = await call('ImageDataURI', current.value.path)
+
+      // Calculate width before showing to avoid blinking
+      const img = new Image()
+      img.onload = () => {
+        const aspect = img.width / img.height
+        // height is bounded by 70vh
+        const maxH = window.innerHeight * 0.7
+        const w = Math.min(img.width, maxH * aspect)
+        // Set width to image width + padding
+        calculatedWidth.value = `min(100%, ${w + 80}px)`
+        fullUri.value = uri
+        loadingImg.value = false
+      }
+      img.onerror = () => {
+        fullUri.value = uri
+        loadingImg.value = false
+      }
+      img.src = uri
     } catch (e) {
       fullUri.value = ''
-    } finally {
       loadingImg.value = false
     }
   },
   { immediate: true }
 )
+
+function reveal(path) {
+  call('RevealInExplorer', path).catch(err => {
+    console.error('Failed to reveal in explorer', err)
+  })
+}
 
 function step(dir) {
   const n = props.hits.length
@@ -83,4 +109,14 @@ function step(dir) {
 .nav-btn:active { transform: scale(0.94); }
 .nav-btn svg { width: 18px; height: 18px; }
 .img-error { color: var(--fg-3); padding: 20px; }
+
+/* Fade transition */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s var(--ease);
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>

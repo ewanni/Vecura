@@ -217,12 +217,11 @@ func TestAddModelAutoDim(t *testing.T) {
 
 func TestImageDataURI(t *testing.T) {
 	dir := t.TempDir()
-	thumb := filepath.Join(dir, "thumbs")
-	os.MkdirAll(thumb, 0o755)
+	pngPath := filepath.Join(dir, "a.png")
 	png := []byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}
-	os.WriteFile(filepath.Join(thumb, "a.png.png"), png, 0o644)
-	app := NewApp(nil, nil, nil, nil, thumb)
-	uri, err := app.ImageDataURI("x/a.png")
+	os.WriteFile(pngPath, png, 0o644)
+	app := NewApp(nil, nil, nil, nil, "")
+	uri, err := app.ImageDataURI(pngPath)
 	if err != nil {
 		t.Fatal(err)
 	}

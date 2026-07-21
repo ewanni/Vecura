@@ -514,13 +514,8 @@ func (a *App) thumbnailURI(imagePath string) string {
 }
 
 // ImageDataURI returns a full-resolution data-URI for the given image path,
-// used by the preview dialog (request #4). Falls back to the thumbnail.
+// used by the preview dialog (request #4).
 func (a *App) ImageDataURI(imagePath string) (string, error) {
-	if a.thumbDir != "" {
-		if uri := a.thumbnailURI(imagePath); uri != "" {
-			return uri, nil
-		}
-	}
 	data, err := os.ReadFile(imagePath)
 	if err != nil {
 		return "", fmt.Errorf("read image: %w", err)
