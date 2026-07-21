@@ -198,6 +198,25 @@ func (a *App) GetConfig() (*appConfig, error) {
 	return &cfg, nil
 }
 
+// ClearDB deletes all rows from the database and clears the vector store.
+func (a *App) ClearDB() error {
+	tables := []string{
+		"images",
+		"tags",
+		"image_tags",
+		"embeddings",
+		"search_history",
+	}
+	for _, table := range tables {
+		_, err := a.db.Exec("DELETE FROM " + table)
+		if err != nil {
+			return fmt.Errorf("clear table %s: %w", table, err)
+		}
+	}
+	a.store.Clear()
+	return nil
+}
+
 // SetActiveModel records which registered model is currently selected.
 func (a *App) SetActiveModel(key string) error {
 	a.cfgMu.Lock()

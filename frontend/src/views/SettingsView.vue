@@ -178,6 +178,16 @@
         </div>
         <span class="folder-cta">Choose…</span>
       </div>
+
+      <!-- Danger Zone -->
+      <div class="section-title danger-title">Danger Zone</div>
+      <div class="danger-card">
+        <div class="danger-text">
+          <div class="danger-head">Clear Database</div>
+          <div class="danger-hint">Wipes all indexed vectors, metadata, and history. Configured models are kept.</div>
+        </div>
+        <button class="danger-btn" @click="clearDatabase">Clear</button>
+      </div>
     </template>
   </div>
 </template>
@@ -359,6 +369,19 @@ async function pickFolder() {
     folderPath.value = p
     emit('scan-folder', p)
     persist()
+  }
+}
+
+async function clearDatabase() {
+  if (confirm('Are you sure you want to clear the entire database? This action cannot be undone.')) {
+    try {
+      await call('ClearDB')
+      folderPath.value = ''
+      ElMessage.success('Database cleared successfully')
+      persist()
+    } catch (e) {
+      ElMessage.error('Failed to clear database: ' + e)
+    }
   }
 }
 
@@ -717,5 +740,33 @@ onMounted(async () => {
   padding: 6px 10px; border-radius: 8px;
   background: var(--field-bg);
   flex: none;
+}
+
+/* Danger Zone */
+.danger-title { color: var(--red); }
+.danger-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 69, 58, 0.05);
+  border: 1px solid rgba(255, 69, 58, 0.15);
+}
+.danger-text { flex: 1; min-width: 0; }
+.danger-head { font-size: 0.82rem; font-weight: 600; color: var(--red); }
+.danger-hint { font-size: 0.72rem; color: var(--fg-3); line-height: 1.3; margin-top: 2px; }
+.danger-btn {
+  font-size: 0.78rem; font-weight: 600; color: var(--red);
+  padding: 6px 12px; border-radius: 8px;
+  background: rgba(255, 69, 58, 0.1);
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s var(--ease);
+}
+.danger-btn:hover {
+  background: var(--red);
+  color: #fff;
+}
+.danger-btn:active {
+  transform: scale(0.96);
 }
 </style>

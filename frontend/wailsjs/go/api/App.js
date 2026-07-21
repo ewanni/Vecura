@@ -50,10 +50,6 @@ export function RemoveModel(arg1) {
   return window['go']['api']['App']['RemoveModel'](arg1);
 }
 
-export function RevealInExplorer(arg1) {
-  return window['go']['api']['App']['RevealInExplorer'](arg1);
-}
-
 export function SaveSettings(arg1) {
   return window['go']['api']['App']['SaveSettings'](arg1);
 }

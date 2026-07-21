@@ -40,6 +40,14 @@ func NewVectorStore() *VectorStore {
 	return s
 }
 
+// Clear drops all vectors in memory.
+func (s *VectorStore) Clear() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.m = make(map[string]*ModelVectors)
+	s.snap.Store(&storeSnapshot{models: s.m})
+}
+
 func (s *VectorStore) getOrCreateLocked(provider, modelID string, dim int) *ModelVectors {
 	k := modelKey(provider, modelID)
 	mv, ok := s.m[k]

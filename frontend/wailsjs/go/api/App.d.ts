@@ -26,8 +26,6 @@ export function RecentSearches():Promise<Array<string>>;
 
 export function RemoveModel(arg1:string):Promise<void>;
 
-export function RevealInExplorer(arg1:string):Promise<void>;
-
 export function SaveSettings(arg1:api.SaveSettingsReq):Promise<void>;
 
 export function ScanFolder(arg1:string,arg2:string):Promise<void>;
