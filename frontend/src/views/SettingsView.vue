@@ -247,8 +247,8 @@ async function onProvider(isRestore = false) {
   // switching away and back keeps the user's base URL / API key.
   const saved = savedProviders.value[provider.value]
   if (saved) {
-    if (saved.baseUrl) baseUrl.value = saved.baseUrl
-    if (saved.apiKey) apiKey.value = saved.apiKey
+    if (saved.BaseURL) baseUrl.value = saved.BaseURL
+    if (saved.APIKey) apiKey.value = saved.APIKey
   }
   // Only clear discovered models/selection when the user actively switches
   // providers — not while restoring saved state on mount.
@@ -271,7 +271,7 @@ function resetCheck() {
   keyState.value = ''
 }
 
-async function check() {
+async function check(isAuto = false) {
   if (!baseUrl.value) return ElMessage.warning('Base URL required')
   checking.value = true
   urlState.value = ''
@@ -282,10 +282,14 @@ async function check() {
     // provider to filter by the embeddings modality, with a client-side
     // heuristic fallback), so show the list as-is.
     fetchedModels.value = list || []
-    modelsCollapsed.value = false
+    if (isAuto !== true) {
+      modelsCollapsed.value = false
+    }
     urlState.value = 'valid'
     keyState.value = 'valid'
-    ElMessage.success('Key valid — models loaded')
+    if (isAuto !== true) {
+      ElMessage.success('Key valid — models loaded')
+    }
     // Persist the now-confirmed connection immediately so it survives a
     // restart even if the user never clicks away from the field.
     persist()
@@ -379,8 +383,8 @@ async function persist() {
     // Keep the local cache in sync so an immediate provider switch restores
     // the just-saved values without waiting for a backend round-trip.
     savedProviders.value[provider.value] = {
-      baseUrl: baseUrl.value,
-      apiKey: apiKey.value,
+      BaseURL: baseUrl.value,
+      APIKey: apiKey.value,
     }
   } catch (e) {
     console.error('[settings] SaveSettings failed:', e)
@@ -392,16 +396,16 @@ async function restoreSettings() {
   try {
     const cfg = await call('GetConfig')
     if (!cfg) return
-    if (cfg.providers) savedProviders.value = cfg.providers
-    if (cfg.provider) provider.value = cfg.provider
-    const pc = cfg.providers && cfg.providers[cfg.provider]
+    if (cfg.Providers) savedProviders.value = cfg.Providers
+    if (cfg.Provider) provider.value = cfg.Provider
+    const pc = cfg.Providers && cfg.Providers[cfg.Provider]
     if (pc) {
-      if (pc.baseUrl) baseUrl.value = pc.baseUrl
-      if (pc.apiKey) apiKey.value = pc.apiKey
+      if (pc.BaseURL) baseUrl.value = pc.BaseURL
+      if (pc.APIKey) apiKey.value = pc.APIKey
     }
-    if (cfg.fetchedModels && cfg.fetchedModels.length) fetchedModels.value = cfg.fetchedModels
-    if (cfg.selectedModel) selectedModel.value = cfg.selectedModel
-    if (cfg.folderPath) folderPath.value = cfg.folderPath
+    if (cfg.FetchedModels && cfg.FetchedModels.length) fetchedModels.value = cfg.FetchedModels
+    if (cfg.SelectedModel) selectedModel.value = cfg.SelectedModel
+    if (cfg.FolderPath) folderPath.value = cfg.FolderPath
   } catch (e) {
     console.error('[settings] GetConfig failed:', e)
   }
@@ -434,7 +438,7 @@ onMounted(async () => {
     // relaunch). We always refresh rather than trust the cached list, so the
     // connection is validated and the model list stays current.
     if (baseUrl.value) {
-      check().catch(() => {})
+      check(true).catch(() => {})
     }
     ready.value = true
   } catch (e) {
