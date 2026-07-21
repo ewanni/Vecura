@@ -6,6 +6,7 @@
       :fetch-suggestions="querySearch"
       placeholder="Search images, e.g. Cyberpunk city"
       clearable
+      :fit-input-width="true"
       class="search-input"
       @select="onSelect"
       @keyup.enter="submit"
@@ -13,7 +14,7 @@
       @blur="focused = false"
     >
       <template #default="{ item }">
-        <div class="suggest">{{ item.value }}</div>
+        <div class="suggest" :title="item.value">{{ item.value }}</div>
       </template>
     </el-autocomplete>
   </div>
@@ -57,6 +58,8 @@ function submit() {
   align-items: center;
   gap: 8px;
   height: 38px;
+  width: 40%;
+  margin: 0 auto;
   padding: 0 12px;
   border-radius: var(--radius-field);
   background: var(--field-bg);
@@ -85,5 +88,11 @@ function submit() {
 }
 .search-input :deep(.el-input__inner::placeholder) { color: var(--fg-3); }
 .search-input :deep(.el-input__clear) { color: var(--fg-3); }
-.suggest { padding: 2px 0; font-size: 0.88rem; }
+.suggest {
+  padding: 2px 0;
+  font-size: 0.88rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 </style>
